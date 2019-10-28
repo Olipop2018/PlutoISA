@@ -1,0 +1,10 @@
+init  
+multxor
+add
+and
+lb
+sb
+BNE
+srl
+stlu
+sll
