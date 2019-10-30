@@ -1,10 +1,9 @@
 init  
 multxor
 add
-lb
-sb
+sbmatch
 BNZerodecr
-srland
+fold
 lh
-match
+
 
