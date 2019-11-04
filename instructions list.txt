@@ -1,9 +1,9 @@
-init  
-multxor
-add
-sbmatch
-BNZerodecr
-fold
-lh
+init  01 xx iiii
+multxor 001 xxx tt
+add 100 xxx tt
+store 101 xxx tt
+BNZerodecr 110
+foldmtch 000
+//lodh 111 (might not need)
 
 
