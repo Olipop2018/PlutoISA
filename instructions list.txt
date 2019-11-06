@@ -2,8 +2,8 @@ init  01 xx iiii
 multxor 001 xxx tt
 add 100 xxx tt
 store 101 xxx tt
-BNZerodecr 110
-foldmtch 000
-//lodh 111 (might not need)
+BNZerodecr 110 xxx ii
+foldmtch 000 xxx tt
+
 
 
