@@ -62,7 +62,7 @@ def store(acc):
     memory[1] = registers["a1"]
     memory[2] = registers["a2"]
     memory[3] = registers["a3"]
-    print(memory)
+    #print(memory)
     
 
 
@@ -150,10 +150,11 @@ def instrSimulation(instrs, DIC, pc):
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
             print (instruction , ("$" + str(line[0])) , str(line[1]))
+            rt= rt-1
             if(rs != rt):
                 #temp2= temp2-pc
                 pc=temp2
-                rt= rt-1
+                #rt= rt-1
                 registers[("$" + str(line[0]))]= rt
                 registers["$2"]= rt
                 print ("branch to" ,label)
@@ -313,48 +314,30 @@ def main():
        
     print(pcAssign)
     FinalDIC, FinalPC = instrSimulation(instrs, FinalDIC, FinalPC)
-    print("All memory contents:")
-    for k in range(0,1024):
-        mem= 8192+ (k*4)
+    print("memory contents from 0 - 264:")
+    for k in range(0,265):
+        mem= 8192+ k
         memlo= mem- 8192
-        first = format(memory[memlo],"08b")
-        memlo+=1
-        second = format(memory[memlo],"08b")
-        memlo+=1
-        third = format(memory[memlo],"08b")
-        memlo+=1
-        fourth = format(memory[memlo],"08b")
-        memlo+=1
-        word =  fourth+ third + second+first
-        word= int(word,2)
-        word = format(word,"08x")
-        print("memory", hex(mem)+": 0x"+ word )
+        first = format(memory[memlo])
+        print("memory","{}: {}".format(memlo,first), end='| ')
+        if(k%12 == 0 and k > 0):
+            print("\n")
     
     print("all register values:")
     proregister= str(registers)
     proregister= proregister.replace("'","")
     proregister= proregister.replace("{","")
     proregister= proregister.replace("}","")
-    proregister= proregister.replace(",",";")
+    proregister= proregister.replace(",","\n")
     #print(registers)
-    print(proregister)
+    print(" "+ proregister)
     print("Final PC =",FinalPC)
-    print("memory contents from 0x2000 - 0x2050:")
-    for l in range(0,21):
-        mem= 8192+ (l*4)
-        memlo= mem- 8192
-        first = format(memory[memlo],"08b")
-        memlo+=1
-        second = format(memory[memlo],"08b")
-        memlo+=1
-        third = format(memory[memlo],"08b")
-        memlo+=1
-        fourth = format(memory[memlo],"08b")
-        memlo+=1
-        word =  fourth+ third + second+first
-        word= int(word,2)
-        word = format(word,"08x")
-        print("memory", hex(mem)+": 0x"+ word )
+   # print("memory contents from 0x2000 - 0x2050:")
+    #for l in range(0,260):
+     #   mem= 8192+ l
+      #  memlo= mem- 8192
+       # first = format(memory[memlo])
+        #print("memory"," {} : {}".format(memlo,first))
     print("Dynamic Instruction Count: ",FinalDIC)
 
 if __name__ == "__main__":

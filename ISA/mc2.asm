@@ -1,7 +1,7 @@
 init $1, 0x1
 init $1, 0x9
 init $0, 0
-init $0, 4
+init $0, 3
 init $2, 0
 init $2, 0xF
 init $2, 0xF
