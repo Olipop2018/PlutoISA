@@ -2,7 +2,7 @@ memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 f
 				#Dynamic Instruction Count
 registers = {"$0": 0, "$1":0,"$2": 0, "$3":0,"$4": 0, 
                   "$5":0,"$6": 0, "$7":0,"a0": 0, "a1":0,"a2": 0, 
-                  "a3":0, "lo":0,"hi":0, "loop0":0 ,"loop1":0 ,"loop2":0,"loop3":0}
+                  "a3":0, "lo":0,"hi":0, "loop0":9,"loop1":13,"loop2":0,"loop3":0}
 labelIndex = []
 labelName = []
 pcAssign= []
@@ -140,12 +140,12 @@ def instrSimulation(instrs, DIC, pc):
         elif(line[0:6] == "bnzdec"): # bne
             line = line.replace("bnzdec","")
             line = line.split(",")
-            for i in range(len(labelName)):
-                    if(labelName[i] == line[1]):
-                       lpos = int(labelIndex[i])
-                       label= labelName[i] 
-            temp2= pcAssign[lpos]
-            temp2= registers["loop"+ str(temp2)]
+           # for i in range(len(labelName)):
+            #        if(labelName[i] == line[1]):
+             #          lpos = int(labelIndex[i])
+              #         label= labelName[i] 
+            #temp2= pcAssign[lpos]
+            temp2= registers["loop"+ str(line[1])]
             rs = 0
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
@@ -157,7 +157,7 @@ def instrSimulation(instrs, DIC, pc):
                 #rt= rt-1
                 registers[("$" + str(line[0]))]= rt
                 registers["$2"]= rt
-                print ("branch to" ,label)
+                #print ("branch to" ,label)
             else:
                 pc+= 1
                 print ("does not branch, go to next instructions" )
@@ -293,7 +293,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("mc2.asm","r")
+    h = open("mc4.txt","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -303,15 +303,28 @@ def main():
         asm.remove('\n')
        
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
+    
     for line in asm:
         #line = line.replace("\t","")
         #line = line.replace('"','')
+        if(line[0:2]== '01'):
+            line = "init"+ str(int(line[2:4],2))+","+ str(int(line[4:],2))
+        elif(line[0:3]== '100'):
+            line = "add"+ str(int(line[3:6],2))+","+ str(int(line[6:],2))
+        elif(line[0:3]== '001'):
+            line = "multxor"+ str(int(line[3:6],2))+","+ str(int(line[6:],2))
+        elif(line[0:3]== '110'):
+            line = "bnzdec"+ str(int(line[3:6],2))+","+ str(int(line[6:],2))
+        elif(line[0:3]== '111'):
+            line = "foldmtch"+ str(int(line[3:6],2))+","+ str(int(line[6:],2))
+        elif(line[0:3]== '101'):
+            line = "store"+ str(int(line[3:6],2))+"("+ str(int(line[6:],2))+ ")"
         line = line.replace("\n","") # Removes extra chars
         line = line.replace("$","")
         line = line.replace(" ","")
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         instrs.append(line)
-       
+    print(instrs)
     print(pcAssign)
     FinalDIC, FinalPC = instrSimulation(instrs, FinalDIC, FinalPC)
     print("memory contents from 0 - 264:")
