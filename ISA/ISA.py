@@ -1,13 +1,16 @@
+# initialize merroy addresses
 memory = [0] *4096 #Remember when ever you get an address in hex subtract 8192 from it then write to it
-				#Dynamic Instruction Count
+				
 registers = {"$0": 0, "$1":0,"$2": 0, "$3":0,"$4": 0, 
                   "$5":0,"$6": 0, "$7":0,"a0": 0, "a1":0,"a2": 0, 
                   "a3":0, "lo":0,"hi":0, "loop0":9,"loop1":13,"loop2":0,"loop3":0}
+# arrays
 labelIndex = []
 labelName = []
 pcAssign= []
  
 def multXor(A,B):
+    # multiply the the A and B value, split to 2 8 bits and xor them. returns the result
         tmp = A * B
         tmp= format(tmp,'016b')
         hi2=  int(tmp[:8],2)
@@ -17,11 +20,12 @@ def multXor(A,B):
 
 
 def foldmatch(C, dest):
+    # fold 2 times
      C= format(C,'08b')
      C= int(C[4:8],2) ^ int(C[:4],2)
      C= format(C,'04b')
      C=  int(C[2:4],2) ^ int(C[:2],2)
-   # now does pattern matachin of C
+   # now does pattern mataching of C and increment corrsponding register
      registers[dest]= C
      C= format(C,'02b')
      if ('11' in C):
@@ -42,6 +46,7 @@ def foldmatch(C, dest):
          registers["a0"] = n0
 
 def init(D, dest):
+    # initialize the register and "hi" to the the immidiate value 
     if(D==0):
         registers["hi"] = D
     elif(D<0):
@@ -57,32 +62,20 @@ def init(D, dest):
     print ("result:" ,dest ,"=",  hex(D))
 
 def store(acc):
+   # store $3 to calculated memory address and the special registers to their respective hardwire memory adress 
     memory[acc] = registers["$3"]
     memory[0] = registers["a0"]
     memory[1] = registers["a1"]
     memory[2] = registers["a2"]
     memory[3] = registers["a3"]
     #print(memory)
-    
-
-
-   # registers["$hi"] = n		#Shift high right 32
-   # registers["$lo"] = int(C,2)
-    #print ("result:" ,"$hi" ,"=", hex(n))
-    #print ("result:" ,"$lo" ,"=", hex(int(C,2)))
-    
-
 
 def instrSimulation(instrs, DIC, pc):
-   #pc = int(0)
    bcount=0
-   #DIC = int(0)
    j= int(0)
    while True:
         bcount+=1
-       # num= len(instrs)
         if (int(pc) >= len(instrs)):
-           
             print("Dynamic Instruction Count: ",DIC)
             return DIC, pc;
         line = instrs[int(pc)]
@@ -95,24 +88,14 @@ def instrSimulation(instrs, DIC, pc):
                 n=16
             else:
                 n=10
-            imm = int(line[1],n) # will get the negative or positive inter value. if unsigned and negative will get the unsigned value of th negative integer.
-            rs = imm # reads the value from specified register
+            imm = int(line[1],n) # 
+            rs = imm # 
             rt = "$" + str(line[0]) # locate the register in which to write to
             instruction = "init" 
             print (instruction , rt, imm if(n== 10) else hex(imm))
+            #calls to init functions
             init(rs, rt)
-            #result = rs + imm # does the addition operation
-            #registers[rt]
-            #= result # writes the value to the register specified
-            #print ("result:" ,rt ,"=",  hex(result))
-            pc += 1# increments pc by 4 
-           # pcprint = hex(pc)
-            
-
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
-
+            pc += 1# increments pc by 1
            
         elif(line[0:5] == "store"): # store
             line = line.replace("store","")
@@ -123,19 +106,12 @@ def instrSimulation(instrs, DIC, pc):
             rt = int(registers[("$" + str(line[1]))])
             instruction = "store"
             print (instruction , ("$" + str(line[0])) + "("+("$" + str(line[1]))+")" )
+            # calculates the memory address
             mem = rt+ rs
             store(mem)
             memo= mem
             print ("result memory:", hex(memo) ,"=", hex(registers["$3"]))
-            pc+= 1# increments pc by 4 
-          
-           
-            
-            # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)  
-       
+            pc+= 1# increments pc by 1
       
         elif(line[0:6] == "bnzdec"): # bne
             line = line.replace("bnzdec","")
@@ -150,76 +126,43 @@ def instrSimulation(instrs, DIC, pc):
             rt = registers[("$" + str(line[0]))]
             instruction = "bne" 
             print (instruction , ("$" + str(line[0])) , str(line[1]))
+           # deincrement the rt first the nchecks if it is not equal to zero
             rt= rt-1
             if(rs != rt):
-                #temp2= temp2-pc
                 pc=temp2
-                #rt= rt-1
                 registers[("$" + str(line[0]))]= rt
                 registers["$2"]= rt
                 #print ("branch to" ,label)
             else:
                 pc+= 1
                 print ("does not branch, go to next instructions" )
-           # pcprint=  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint)
-
-       
-            
+    
         elif(line[0:8] == "foldmtch"): # FOLDMATCH
             line = line.replace("foldmtch","")
             line = line.split(",")
             rs = registers[("$" + str(line[0]))]	#First register
             rt = "$" + str(line[1])	#Second register
-            instruction = "cfold" 
+            instruction = "foldmtch" 
             print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])))
             foldmatch(rs, rt)
             
-            pc += 1# increments pc by 4 
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-            #print(pcprint)
+            pc += 1# increments pc by 1
+          
 
-        elif(line[0:7] == "multxor"): # MULT/U
+        elif(line[0:7] == "multxor"): # multxor
             line = line.replace("multxor","")
             line = line.split(",")
             rs = registers[("$" + str(line[0]))]	#First register
             rt = registers[("$" + str(line[1]))]	#Second register
             rs= int(rs) if int(rs) > 0  else (65536 + int(rs))
             rt= int(rt) if int(rt) > 0  else (65536 + int(rt))
-            instruction = "mult"
+            instruction = "multxor"
             print (instruction , ("$" + str(line[0])) ,("$" + str(line[1])))
             rslt =multXor(rs,rt)
             registers[("$" + str(line[0]))] = rslt	
             print ("result:" ,"$" + str(line[0]) ,"=", hex(rslt))
-            pc += 1# increments pc by 4 
-             
-            #pcprint =  hex(pc)
-            #print(registers)# print all the registers and their values (testing purposes to see what is happening)
-            #print(pc)
-            #print(pcprint) 
-           
-#        elif(line[0:3] == "xor"): # XOR
- #           line = line.replace("xor","")
-  #          line = line.split(",")
-   #         rd = "$" + str(line[0])
-    #        rs = registers[("$" + str(line[1]))]
-     #       rt = registers[("$" + str(line[2]))]
-      #      instruction = "xor"
-       #     print (instruction , rd ,("$" + str(line[1])), ("$" + str(line[2])))
-        #    result = rs ^ rt # does the addition operation
-         #   registers[rd]= result
-          #  print ("result:" ,rd ,"=", hex(result))
-            
-           # pc+= 1 # increments pc by 4 
-             
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-           # print(pcprint)
+            pc += 1# increments pc by 1 
+
        
         elif(line[0:3] == "add"): # ADD
             line = line.replace("add","")
@@ -233,12 +176,6 @@ def instrSimulation(instrs, DIC, pc):
             registers[("$" + str(line[0]))]= result
             print ("result:" ,("$" + str(line[0])),"=", hex(result))
             pc+= 1 # increments pc by 1
-           # pcprint =  hex(pc)
-           # print(registers)# print all the registers and their values (testing purposes to see what is happening)
-           # print(pc)
-           # print(pcprint)
-        
-      
 
         elif(line[0:1] == "j"): # JUMP
             line = line.replace("j","")
@@ -253,8 +190,7 @@ def instrSimulation(instrs, DIC, pc):
 
             if(line[0].isdigit()): # First,test to see if it's a label or a integer
                 pc= int(line[0])
-               # hexstr= hex(int(hexstr[0], 2))
-               # f.write(hexstr + '\n')#str('000010') + str(format(int(line[0]),'026b')) + '\n'+ hexstr+ '\n')
+               
 
             else: # Jumping to label
                 for i in range(len(labelName)):
@@ -264,10 +200,7 @@ def instrSimulation(instrs, DIC, pc):
                 pc= (pcAssign[lpos])+4
                 print ("branch to" ,label)
         print("Next instruction PC =",pc)
-                        #pc= format(int(labelIndex[i]),'026b')
-                        #pc = int(pc,2)
-                        #hexstr= hex(int(hexstr[0], 2))
-                       # f.write(hexstr+ '\n')#str('000010') + str(format(int(labelIndex[i]),'026b')) + '\n'+ hexstr+ '\n')
+                        
   
 
 def saveJumpLabel(asm,labelIndex, labelName):
@@ -293,7 +226,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("mc4.txt","r")
+    h = open("mc1.txt","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
@@ -305,8 +238,7 @@ def main():
     saveJumpLabel(asm,labelIndex,labelName) # Save all jump's destinations
     
     for line in asm:
-        #line = line.replace("\t","")
-        #line = line.replace('"','')
+        # convert the binary commands to readidable code
         if(line[0:2]== '01'):
             line = "init"+ str(int(line[2:4],2))+","+ str(int(line[4:],2))
         elif(line[0:3]== '100'):
@@ -324,10 +256,11 @@ def main():
         line = line.replace(" ","")
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         instrs.append(line)
-    print(instrs)
+    #print(instrs)
     print(pcAssign)
     FinalDIC, FinalPC = instrSimulation(instrs, FinalDIC, FinalPC)
     print("memory contents from 0 - 264:")
+   #print memory contents
     for k in range(0,265):
         mem= 8192+ k
         memlo= mem- 8192
@@ -345,12 +278,7 @@ def main():
     #print(registers)
     print(" "+ proregister)
     print("Final PC =",FinalPC)
-   # print("memory contents from 0x2000 - 0x2050:")
-    #for l in range(0,260):
-     #   mem= 8192+ l
-      #  memlo= mem- 8192
-       # first = format(memory[memlo])
-        #print("memory"," {} : {}".format(memlo,first))
+  
     print("Dynamic Instruction Count: ",FinalDIC)
 
 if __name__ == "__main__":
