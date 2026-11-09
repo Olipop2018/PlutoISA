@@ -1,5 +1,5 @@
 init $1, 0x6
-init $1, 0x6	#$8 = B
+init $1, 0x6
 init $0, 0
 init $0, 4
 init $2, 0

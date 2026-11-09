@@ -292,7 +292,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def main():
    # f = open("mc.txt","w+")
-    h = open("mc2.asm","r")
+    h = open("mc1.asm","r")
     asm = h.readlines()
     instrs = []
     FinalDIC= 0
