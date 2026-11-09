@@ -1,0 +1,36 @@
+yellow:
+red = 170-180
+green =100-130
+
+orange:
+red= 200-255
+green = 50
+
+aqua:
+green=255
+blue =110-200
+
+light Green(bluesih):
+green=255
+blue = 30-40
+
+indigo:
+red= 60 - 80
+blue= 50
+
+purple:
+red =80 -110
+blue = 255
+
+purple light:
+red =120-160
+blue =255
+
+pink:
+red = 80 -110 or 255
+blue = 50 or 40-60
+
+werid orange :
+red= 255
+blue= 10-40
+green =50
